@@ -1,0 +1,8 @@
+
+.vs/
+
+# Ignore generated build files
+**/bin/
+**/obj/
+.vs/
+*.csproj.user
