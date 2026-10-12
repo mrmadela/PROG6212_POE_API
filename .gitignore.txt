@@ -1,0 +1,10 @@
+
+# Visual Studio local files and caches
+.vs/
+
+# Build output
+**/bin/
+**/obj/
+
+# Local configuration and secrets
+appsettings.Development.json
