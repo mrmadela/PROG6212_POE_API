@@ -8,11 +8,11 @@ using RaceDay.Api.Models;
 using RaceDay.Contracts;
 
 namespace RaceDay.Api.Controllers
-{
+{// start of namespace 
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
-    {
+    {// start of class 
         private readonly RaceDayDbContext _db;
         private readonly IPasswordHasher<User> _passwordHasher;
 
@@ -107,6 +107,65 @@ namespace RaceDay.Api.Controllers
                 Message = "Registration successful."
             });
         }
-    }
-}
+
+
+        /* START OF CODE: Add inside AuthController */
+
+        // POST: /api/auth/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequest request)
+        {
+            string email = request.Email.Trim().ToLowerInvariant();
+
+            var user = await _db.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+            {
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password."
+                });
+            }
+
+            var verification = _passwordHasher.VerifyHashedPassword(
+                user,
+                user.PasswordHash,
+                request.Password);
+
+            if (verification == PasswordVerificationResult.Failed)
+            {
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password."
+                });
+            }
+
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            HttpContext.Session.SetString("Role", user.Role);
+
+            return Ok(new AuthResponse
+            {
+                UserId = user.UserId,
+                Email = user.Email,
+                Role = user.Role,
+                Message = "Login successful."
+            });
+        }
+
+        // POST: /api/auth/logout
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+
+            return Ok(new
+            {
+                message = "Logout successful."
+            });
+        }
+
+
+    }// end of class
+}// end of namespace 
 
