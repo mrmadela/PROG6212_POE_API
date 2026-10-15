@@ -1,36 +1,44 @@
-using Microsoft.EntityFrameworkCore;
-using RaceDay.Api.Data;
-using Microsoft.AspNetCore.Identity;
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using RaceDay.Api.Data;
+using RaceDay.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Connect to the RaceDayDB SQL Server database.
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add services to the container.
-
+// Register controllers and Swagger.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register password hashing for User accounts.
 builder.Services.AddScoped<
-    IPasswordHasher<RaceDay.Api.Models.User>,
-    PasswordHasher<RaceDay.Api.Models.User>>();
+    IPasswordHasher<User>,
+    PasswordHasher<User>>();
 
+// Register session services BEFORE builder.Build().
 builder.Services.AddDistributedMemoryCache();
+
 builder.Services.AddSession(options =>
 {
+    options.Cookie.Name = ".RaceDay.Session";
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+
+    // Use HTTPS for secure session cookies.
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
     options.IdleTimeout = TimeSpan.FromMinutes(30);
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure Swagger in development.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -39,12 +47,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
+// Enable session before mapping controllers.
 app.UseSession();
+
+app.UseAuthorization();
 
 app.MapControllers();
 
+// Check whether the database is accessible.
 app.MapGet("/api/health/database", async (RaceDayDbContext db) =>
 {
     bool connected = await db.Database.CanConnectAsync();
@@ -58,7 +68,8 @@ app.MapGet("/api/health/database", async (RaceDayDbContext db) =>
         });
     }
 
-    return Results.Problem("Could not connect to RaceDayDB.");
+    return Results.Problem(
+        "Could not connect to RaceDayDB.");
 });
 
 app.Run();
