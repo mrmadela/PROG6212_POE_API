@@ -1,3 +1,178 @@
+<!-- start of code -->
+# RaceDay API — PROG6212 PoE Part 2
+
+## Project Description
+
+RaceDay is a RESTful API for managing running, walking and cycling events.
+It supports user registration, login, profiles, events, categories,
+participant enrolments and race results.
+
+## Technologies Used
+
+- C#
+- ASP.NET Core Web API
+- .NET 8
+- Entity Framework Core
+- SQL Server
+- Swagger / OpenAPI
+- xUnit
+- GitHub Actions
+
+## User Roles
+
+### Organiser
+- Manage their own events.
+- Create and manage categories for their events.
+- View enrolments for their own events.
+- Record results for their events.
+
+### Participant
+- Browse events and categories.
+- Manage their own profile.
+- Enrol in categories.
+- View their own enrolments and results.
+- Cancel their own enrolment when cancellation rules permit.
+
+## Project Structure
+
+- `RaceDay.Api` — API controllers, models, data access and configuration.
+- `RaceDay.Contracts` — request and response DTOs.
+- `RaceDay.Api.Tests` — automated tests.
+- `.github/workflows` — continuous integration workflow.
+
+## Database Setup
+
+The API uses SQL Server and the `RaceDayDB` database.
+
+Update `RaceDay.Api/appsettings.json` with the SQL Server instance
+available on your machine. Do not commit passwords or other secrets.
+
+The development connection used for this project is:
+
+`(localdb)\api_guide`
+
+Database name: `RaceDayDB`.
+
+Ensure the database has the tables and relationships from the Part 1
+database design before running the API.
+
+## How to Run the API
+
+1. Install the .NET 8 SDK and SQL Server LocalDB.
+2. Clone this repository.
+3. Open `RaceDay.sln` in Visual Studio, or use a terminal.
+4. Check the connection string in `RaceDay.Api/appsettings.json`.
+5. Run:
+
+   `dotnet restore RaceDay.sln`
+
+   `dotnet build RaceDay.sln`
+
+   `dotnet test RaceDay.sln`
+
+6. Start the API:
+
+   `dotnet run --project RaceDay.Api`
+
+7. Open the HTTPS Swagger URL shown in the terminal.
+
+## Authentication
+
+Register an account and log in using the authentication endpoints.
+The API hashes passwords and stores the logged-in user's ID and role
+in a session.
+
+Keep the session cookie when testing protected endpoints.
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+
+### Profile
+- `GET /api/users/profile`
+- `PUT /api/users/profile`
+
+### Events
+- `GET /api/events`
+- `GET /api/events/{id}`
+- `GET /api/events/mine`
+- `POST /api/events`
+- `PUT /api/events/{id}`
+- `DELETE /api/events/{id}`
+
+### Categories
+- `GET /api/events/{eventId}/categories`
+- `POST /api/events/{eventId}/categories`
+- `PUT /api/categories/{id}`
+- `DELETE /api/categories/{id}`
+
+### Enrolments
+- `POST /api/enrolments`
+- `GET /api/enrolments/mine`
+- `GET /api/enrolments/event/{eventId}`
+- `DELETE /api/enrolments/{id}`
+
+### Results
+- `POST /api/results`
+- `GET /api/results/mine`
+- `GET /api/results/event/{eventId}`
+
+## Unit Testing
+
+Run the automated tests using:
+
+`dotnet test RaceDay.sln`
+
+Tests should cover password hashing, registration, login, unauthorised
+access, role restrictions, event creation and enrolment.
+
+## CI/CD
+
+GitHub Actions runs restore, build and test checks on pushes and pull
+requests. See the Actions tab for the latest workflow result.
+
+### GitHub Actions Screenshot
+
+Add the screenshot of the successful workflow here after it passes.
+
+## Video Presentation
+
+Unlisted YouTube video: REPLACE_WITH_YOUR_UNLISTED_VIDEO_URL
+
+## Repository
+
+https://github.com/mrmadela/PROG6212_POE_API.git
+<!-- end of code -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # PROG6212_POE_API
 Application Programming Interface
 
