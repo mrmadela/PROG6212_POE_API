@@ -73,3 +73,9 @@ app.MapGet("/api/health/database", async (RaceDayDbContext db) =>
 });
 
 app.Run();
+
+// Make the API available to the test project
+public partial class Program
+{
+} 
+

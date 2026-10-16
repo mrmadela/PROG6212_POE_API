@@ -18,12 +18,12 @@ namespace RaceDay.Api.Controllers
         {
             _db = db;
         }
-        
 
-        // POST: /api/enrolments
+
+        // POST: /api/enrolments?categoryId=1
         [HttpPost]
         public async Task<IActionResult> CreateEnrolment(
-            CreateEnrolmentRequest request)
+            [FromQuery] int categoryId)
         {// start of method
             int? userId = HttpContext.Session.GetInt32("UserId");
             string? role = HttpContext.Session.GetString("Role");
@@ -39,11 +39,10 @@ namespace RaceDay.Api.Controllers
                 .FirstOrDefaultAsync(p => p.UserId == userId.Value);
 
             if (participant == null)
-                return NotFound(
-                    new { message = "Participant profile not found." });
+                return NotFound(new { message = "Participant profile not found." });
 
             var category = await _db.Categories
-                .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId);
+                .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
 
             if (category == null)
                 return NotFound(new { message = "Category not found." });
@@ -55,16 +54,17 @@ namespace RaceDay.Api.Controllers
                 return NotFound(new { message = "Event not found." });
 
             if (eventItem.Date.Date < DateTime.Today)
-                return BadRequest(
-                    new { message = "You cannot enrol in a past event." });
+                return BadRequest(new { message = "You cannot enrol in a past event." });
 
             bool alreadyEnrolled = await _db.Enrolments.AnyAsync(e =>
-                e.ParticipantId == participant.ParticipantId
-                && e.CategoryId == request.CategoryId);
+                e.ParticipantId == participant.ParticipantId &&
+                e.CategoryId == categoryId);
 
             if (alreadyEnrolled)
-                return Conflict(
-                    new { message = "You are already enrolled in this category." });
+                return Conflict(new
+                {
+                    message = "You are already enrolled in this category."
+                });
 
             var enrolment = new Enrolment
             {

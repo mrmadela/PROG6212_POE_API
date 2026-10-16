@@ -152,9 +152,16 @@ namespace RaceDay.Contracts
         public int ParticipantId { get; set; }
     }
 
+    public class UpdateEnrolmentStatusRequest
+    {
+        public string Status { get; set; } = string.Empty;
+    }
+
     // Results
     public class CreateResultRequest
     {
+        public int EnrolId { get; set; }
+
         public TimeSpan? Duration { get; set; }
 
         [Range(0, 999.99)]

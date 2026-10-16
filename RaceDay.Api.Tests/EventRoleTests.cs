@@ -42,7 +42,14 @@ namespace RaceDay.Api.Tests
                 EventType = "Run"
             };
 
-            var result = await controller.CreateEvent(request);
+            var result = await controller.CreateEvent(
+                request.EventName,
+                request.EventDescription,
+                request.Date,
+                request.Location,
+                request.DistanceKm,
+                request.EventType
+            );
 
             Assert.IsType<ObjectResult>(result);
             Assert.Equal(403, ((ObjectResult)result).StatusCode);

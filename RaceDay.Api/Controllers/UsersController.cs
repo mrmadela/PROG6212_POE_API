@@ -59,13 +59,16 @@ namespace RaceDay.Api.Controllers
             return Ok(profile);
         }// end of method
 
+
         // Update Profile
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile(
             UpdateProfileRequest request)
-        {// start of method
+        {// start of UpdateProfile method
+            // Get the ID of the currently logged-in user from the session.
             int? userId = HttpContext.Session.GetInt32("UserId");
 
+            // Stop the request if the user is not logged in.
             if (userId == null)
             {
                 return Unauthorized(new
@@ -74,42 +77,81 @@ namespace RaceDay.Api.Controllers
                 });
             }
 
+            // Validate the full name before calling Trim() or updating the database.
+            if (string.IsNullOrWhiteSpace(request.FullName))
+            {
+                return BadRequest(new
+                {
+                    message = "Full name is required."
+                });
+            }
+
+            // Retrieve the user and their related organiser or participant profile.
             var user = await _db.Users
                 .Include(u => u.Organiser)
                 .Include(u => u.Participant)
                 .FirstOrDefaultAsync(u => u.UserId == userId.Value);
 
+            // Return an error if the logged-in user's account cannot be found.
             if (user == null)
             {
-                return NotFound(new { message = "User not found." });
+                return NotFound(new
+                {
+                    message = "User not found."
+                });
             }
 
-            // Update only the profile associated with this account.
+            // Update only the profile associated with the user's assigned role.
             if (user.Role == "Organiser" && user.Organiser != null)
             {
+                // Organisers must provide a phone number.
+                if (string.IsNullOrWhiteSpace(request.PhoneNum))
+                {
+                    return BadRequest(new
+                    {
+                        message = "Phone number is required."
+                    });
+                }
+
+                // Remove unnecessary spaces and update the organiser's details.
                 user.Organiser.FullName = request.FullName.Trim();
-                user.Organiser.PhoneNum = request.PhoneNum;
+                user.Organiser.PhoneNum = request.PhoneNum.Trim();
             }
-            else if (user.Role == "Participant" && user.Participant != null)
+            else if (user.Role == "Participant"
+                     && user.Participant != null)
             {
+                // Participants must provide an address.
+                if (string.IsNullOrWhiteSpace(request.Address))
+                {
+                    return BadRequest(new
+                    {
+                        message = "Address is required."
+                    });
+                }
+
+                // Update the participant's name and address.
                 user.Participant.FullName = request.FullName.Trim();
-                user.Participant.Address = request.Address;
+                user.Participant.Address = request.Address.Trim();
             }
             else
             {
+                // Report a configuration problem if the related profile is missing.
                 return Conflict(new
                 {
                     message = "The user profile is not configured correctly."
                 });
             }
 
+            // Save the validated profile changes to the database.
             await _db.SaveChangesAsync();
 
+            // Confirm that the profile was updated successfully.
             return Ok(new
             {
                 message = "Profile updated successfully."
             });
-        }// end of UpdateProfile method
+        }// end of UpdateProfile() method
+
 
     }// end of class
 }// end of namespace
