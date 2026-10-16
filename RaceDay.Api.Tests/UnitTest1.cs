@@ -3,44 +3,44 @@ using RaceDay.Api.Models;
 
 namespace RaceDay.Api.Tests
 {
-    // start of class
+    
     public class UnitTest1
-    {
-        // start of method
+    {// start of class
+
         [Fact]
         public void PasswordHasher_ShouldVerifyCorrectPassword()
-        {
+        {// start of method
             // Arrange
-            var user = new User();
-            var hasher = new PasswordHasher<User>();
+            var user = new object();
+            var hasher = new PasswordHasher<object> ();
             string password = "RaceDayTest123!";
 
-            // Act
-            string passwordHash = hasher.HashPassword(user, password);
+
+        // Act
+        string hash = hasher.HashPassword(user, password);
             var result = hasher.VerifyHashedPassword(
-                user, passwordHash, password);
+                user, hash, password);
 
             // Assert
-            Assert.NotNull(passwordHash);
             Assert.Equal(
                 PasswordVerificationResult.Success, result);
         }// end of method
 
 
-        // start of method
+        
         [Fact]
         public void PasswordHasher_ShouldRejectIncorrectPassword()
-        {
+        {// start of method
             // Arrange
-            var user = new User();
-            var hasher = new PasswordHasher<User>();
+            var user = new object();
+            var hasher = new PasswordHasher<object>();
             string password = "RaceDayTest123!";
-            string incorrectPassword = "WrongPassword123!";
+            string wrongPassword = "WrongPassword123!";
 
             // Act
-            string passwordHash = hasher.HashPassword(user, password);
+            string hash = hasher.HashPassword(user, password);
             var result = hasher.VerifyHashedPassword(
-                user, passwordHash, incorrectPassword);
+                user, hash, wrongPassword);
 
             // Assert
             Assert.Equal(
@@ -49,4 +49,7 @@ namespace RaceDay.Api.Tests
 
     }// end of class
 
+
+
 }// end of namespace
+
