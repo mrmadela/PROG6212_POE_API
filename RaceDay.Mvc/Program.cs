@@ -17,7 +17,8 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddHttpClient<IApiService, ApiService>(client =>
+
+builder.Services.AddHttpClient<AuthApiService>(client =>
 {
     string? apiBaseUrl =
         builder.Configuration["ApiSettings:BaseUrl"];
@@ -31,6 +32,7 @@ builder.Services.AddHttpClient<IApiService, ApiService>(client =>
     client.BaseAddress = new Uri(apiBaseUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+
 // end of service configuration
 
 var app = builder.Build();
