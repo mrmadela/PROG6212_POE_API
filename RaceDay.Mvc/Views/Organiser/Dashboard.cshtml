@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "Organiser Dashboard";
+}
+
+<!-- start of organiser dashboard -->
+<section class="container py-5">
+
+    <div class="mb-4">
+        <h1 class="display-5 fw-bold">Organiser Dashboard</h1>
+        <p class="text-muted">
+            Manage RaceDay events, categories, enrolments and race results.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Events</h5>
+                    <p class="card-text">
+                        Create, update and manage race events.
+                    </p>
+                    <a asp-controller="Organiser"
+                       asp-action="Events"
+                       class="btn btn-dark">
+                        Manage Events
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Categories</h5>
+                    <p class="card-text">
+                        Manage the categories for your events.
+                    </p>
+                    <a asp-controller="Organiser"
+                       asp-action="Categories"
+                       class="btn btn-dark">
+                        Manage Categories
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Enrolments</h5>
+                    <p class="card-text">
+                        View participants enrolled in your events.
+                    </p>
+                    <a asp-controller="Organiser"
+                       asp-action="Enrolments"
+                       class="btn btn-dark">
+                        View Enrolments
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Results</h5>
+                    <p class="card-text">
+                        Capture and manage race results.
+                    </p>
+                    <a asp-controller="Organiser"
+                       asp-action="Results"
+                       class="btn btn-dark">
+                        Manage Results
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+<!-- end of organiser dashboard -->
