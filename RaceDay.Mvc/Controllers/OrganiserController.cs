@@ -1,7 +1,11 @@
-﻿
+﻿using Microsoft.AspNetCore.WebUtilities;
+using System.Globalization;
+using System.Text.Json;
+using RaceDay.Mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using RaceDay.Contracts;
 using RaceDay.Mvc.Services;
+
 
 namespace RaceDay.Mvc.Controllers
 {// start of namespace
@@ -47,6 +51,85 @@ namespace RaceDay.Mvc.Controllers
             }
 
         }// end of Events
+
+
+        // Displays the create event form.
+        [HttpGet]
+        public IActionResult CreateEvent()
+        {// start of CreateEvent GET
+
+            return View(new EventViewModel
+            {
+                Date = DateTime.Today
+            });
+
+        }// end of CreateEvent GET
+
+        // Sends the new event details to the API.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateEvent(EventViewModel model)
+        {// start of CreateEvent POST
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var parameters = new Dictionary<string, string?>
+                {
+                    ["eventName"] = model.EventName,
+                    ["eventDescription"] = model.EventDescription,
+                    ["date"] = model.Date.ToString("O", CultureInfo.InvariantCulture),
+                    ["location"] = model.Location,
+                    ["distanceKm"] = model.DistanceKm.ToString(CultureInfo.InvariantCulture),
+                    ["eventType"] = model.EventType
+                };
+
+                string endpoint = QueryHelpers.AddQueryString(
+                    "api/events",
+                    parameters);
+
+                var request = new CreateEventRequest
+                {
+                    EventName = model.EventName,
+                    EventDescription = model.EventDescription,
+                    Date = model.Date,
+                    Location = model.Location,
+                    DistanceKm = model.DistanceKm,
+                    EventType = model.EventType
+                };
+
+                var result = await _apiService.PostAsync<CreateEventRequest, EventDto>(
+                    endpoint,
+                    request);
+
+                if (result == null)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "The API did not return the created event.");
+
+                    return View(model);
+                }
+
+                TempData["SuccessMessage"] = "Event created successfully.";
+
+                return RedirectToAction(nameof(Events));
+            }
+            catch (HttpRequestException)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Unable to create the event. Check your details and try again.");
+
+                return View(model);
+            }
+
+        }// end of CreateEvent POST
+
 
     }// end of class
 
