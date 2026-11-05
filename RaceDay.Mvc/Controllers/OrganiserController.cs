@@ -131,6 +131,107 @@ namespace RaceDay.Mvc.Controllers
         }// end of CreateEvent POST
 
 
+        // Loads an existing event into the edit form.
+        [HttpGet]
+        public async Task<IActionResult> EditEvent(int id)
+        {// start of EditEvent GET
+
+            try
+            {
+                var item = await _apiService.GetAsync<EventDto>(
+                    $"api/events/{id}");
+
+                if (item == null)
+                {
+                    return NotFound();
+                }
+
+                var model = new EventViewModel
+                {
+                    EventId = item.EventId,
+                    EventName = item.EventName,
+                    EventDescription = item.EventDescription,
+                    Date = item.Date,
+                    Location = item.Location,
+                    DistanceKm = item.DistanceKm,
+                    EventType = item.EventType
+                };
+
+                return View(model);
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] = "Unable to load the event.";
+                return RedirectToAction(nameof(Events));
+            }
+
+        }// end of EditEvent GET
+
+        // Sends updated event details to the API.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditEvent(
+            int id,
+            EventViewModel model)
+        {// start of EditEvent POST
+
+            if (id != model.EventId)
+            {
+                return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var parameters = new Dictionary<string, string?>
+                {
+                    ["eventName"] = model.EventName,
+                    ["eventDescription"] = model.EventDescription,
+                    ["date"] = model.Date.ToString("O", CultureInfo.InvariantCulture),
+                    ["location"] = model.Location,
+                    ["distanceKm"] = model.DistanceKm.ToString(CultureInfo.InvariantCulture),
+                    ["eventType"] = model.EventType
+                };
+
+                string endpoint = QueryHelpers.AddQueryString(
+                    $"api/events/{id}",
+                    parameters);
+
+                var request = new UpdateEventRequest
+                {
+                    EventName = model.EventName,
+                    EventDescription = model.EventDescription,
+                    Date = model.Date,
+                    Location = model.Location,
+                    DistanceKm = model.DistanceKm,
+                    EventType = model.EventType
+                };
+
+                await _apiService.PutAsync<UpdateEventRequest, JsonElement>(
+                    endpoint,
+                    request);
+
+                TempData["SuccessMessage"] = "Event updated successfully.";
+
+                return RedirectToAction(nameof(Events));
+            }
+            catch (HttpRequestException)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Unable to update the event. Please try again.");
+
+                return View(model);
+            }
+
+        }// end of EditEvent POST
+
+
+
     }// end of class
 
 }// end of namespace
