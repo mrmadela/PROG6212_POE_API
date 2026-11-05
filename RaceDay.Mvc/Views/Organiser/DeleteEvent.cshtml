@@ -1,0 +1,68 @@
+﻿@model RaceDay.Contracts.EventDto
+
+@{
+    ViewData["Title"] = "Delete Event";
+}
+
+<!-- start of delete event confirmation -->
+<section class="container py-5">
+
+    <div class="card shadow-sm border-0 mx-auto"
+         style="max-width: 650px;">
+
+        <div class="card-body p-4">
+
+            <h1 class="fw-bold text-danger">Delete Event</h1>
+
+            <p class="text-muted">
+                Are you sure you want to delete this event?
+            </p>
+
+            <hr />
+
+            <h4>@Model.EventName</h4>
+
+            <p>
+                <strong>Date:</strong>
+                @Model.Date.ToString("dd MMM yyyy")
+            </p>
+
+            <p>
+                <strong>Location:</strong>
+                @Model.Location
+            </p>
+
+            <p>
+                <strong>Distance:</strong>
+                @Model.DistanceKm km
+            </p>
+
+            <div class="alert alert-warning">
+                This action cannot be undone. Events with categories
+                must have their categories deleted first.
+            </div>
+
+            <form asp-action="DeleteEventConfirmed" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.EventId" />
+
+                <button type="submit" class="btn btn-danger">
+                    Confirm Delete
+                </button>
+
+                <a asp-action="Events"
+                   class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</section>
+<!-- end of delete event confirmation -->

@@ -231,6 +231,63 @@ namespace RaceDay.Mvc.Controllers
         }// end of EditEvent POST
 
 
+        // Displays a confirmation page before deleting an event.
+        [HttpGet]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {// start of DeleteEvent GET
+
+            try
+            {
+                var item = await _apiService.GetAsync<EventDto>(
+                    $"api/events/{id}");
+
+                if (item == null)
+                {
+                    return NotFound();
+                }
+
+                return View(item);
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] = "Unable to find the event.";
+                return RedirectToAction(nameof(Events));
+            }
+
+        }// end of DeleteEvent GET
+
+        // Deletes the event through the API after confirmation.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteEventConfirmed(int id)
+        {// start of DeleteEventConfirmed
+
+            try
+            {
+                bool deleted = await _apiService.DeleteAsync(
+                    $"api/events/{id}");
+
+                if (!deleted)
+                {
+                    TempData["ErrorMessage"] =
+                        "The event could not be deleted. It may have categories.";
+
+                    return RedirectToAction(nameof(Events));
+                }
+
+                TempData["SuccessMessage"] = "Event deleted successfully.";
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to delete the event. Please try again.";
+            }
+
+            return RedirectToAction(nameof(Events));
+
+        }// end of DeleteEventConfirmed
+
+
 
     }// end of class
 
