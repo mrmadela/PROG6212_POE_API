@@ -1,3 +1,4 @@
+
 using RaceDay.Mvc.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,11 +18,10 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-
+// start of AuthApiService registration
 builder.Services.AddHttpClient<AuthApiService>(client =>
 {
-    string? apiBaseUrl =
-        builder.Configuration["ApiSettings:BaseUrl"];
+    string? apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"];
 
     if (string.IsNullOrWhiteSpace(apiBaseUrl))
     {
@@ -32,6 +32,23 @@ builder.Services.AddHttpClient<AuthApiService>(client =>
     client.BaseAddress = new Uri(apiBaseUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+// end of AuthApiService registration
+
+// start of IApiService registration
+builder.Services.AddHttpClient<IApiService, ApiService>(client =>
+{
+    string? apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(apiBaseUrl))
+    {
+        throw new InvalidOperationException(
+            "RaceDay API BaseUrl is not configured.");
+    }
+
+    client.BaseAddress = new Uri(apiBaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+// end of IApiService registration
 
 // end of service configuration
 
@@ -60,3 +77,4 @@ app.MapControllerRoute(
 // end of middleware configuration
 
 app.Run();
+// end of application
