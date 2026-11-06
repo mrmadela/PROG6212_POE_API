@@ -1,0 +1,79 @@
+﻿@using RaceDay.Contracts
+@model List<EnrolmentDto>
+
+@{
+    ViewData["Title"] = "Event Enrolments";
+
+    int eventId = ViewBag.EventId is int id ? id : 0;
+}
+
+<!-- START OF ENROLMENTS PAGE -->
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Event Enrolments</h2>
+
+            <p class="text-muted">
+                Manage enrolments for Event #@eventId
+            </p>
+        </div>
+    </div>
+
+    <!-- START OF ERROR MESSAGE -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    <!-- END OF ERROR MESSAGE -->
+    <!-- START OF ENROLMENTS TABLE -->
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No participants have enrolled in this event yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Enrolment ID</th>
+                        <th>Participant ID</th>
+                        <th>Category ID</th>
+                        <th>Enrolment Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var enrolment in Model)
+                    {
+                        <tr>
+                            <td>@enrolment.EnrolId</td>
+                            <td>@enrolment.ParticipantId</td>
+                            <td>@enrolment.CategoryId</td>
+                            <td>
+                                @enrolment.EnrolDate.ToString("dd MMM yyyy")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+    <!-- END OF ENROLMENTS TABLE -->
+
+    <a asp-action="Events"
+       class="btn btn-outline-secondary">
+        Back to Events
+    </a>
+
+</div>
+<!-- END OF ENROLMENTS PAGE -->

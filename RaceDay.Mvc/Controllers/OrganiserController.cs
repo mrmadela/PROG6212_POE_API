@@ -5,6 +5,7 @@ using RaceDay.Mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using RaceDay.Contracts;
 using RaceDay.Mvc.Services;
+using System.Net.Http;
 
 
 namespace RaceDay.Mvc.Controllers
@@ -369,7 +370,7 @@ namespace RaceDay.Mvc.Controllers
 
                 if (result == null)
                 {
-                    TempData["Error"] = "Category creation failed.";
+                    TempData["ErrorMessage"] = "Category creation failed.";
                     return View(model);
                 }
 
@@ -560,6 +561,32 @@ namespace RaceDay.Mvc.Controllers
                 nameof(Categories),
                 new { eventId });
         }
+
+
+
+
+        // START OF EVENT ENROLMENTS ACTION
+        [HttpGet]
+        public async Task<IActionResult> Enrolments(int eventId)
+        {
+            ViewBag.EventId = eventId;
+
+            try
+            {
+                var enrolments = await _apiService.GetAsync<List<EnrolmentDto>>(
+                    $"api/enrolments/event/{eventId}");
+
+                return View(enrolments ?? new List<EnrolmentDto>());
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to retrieve enrolments for this event.";
+
+                return View(new List<EnrolmentDto>());
+            }
+        }
+        // END OF EVENT ENROLMENTS ACTION
 
 
 

@@ -151,6 +151,15 @@
                                                 Categories
                                             </a>
 
+                                            <!-- START OF ENROLMENTS LINK -->
+                                            <a asp-controller="Organiser"
+                                               asp-action="Enrolments"
+                                               asp-route-eventId="@item.EventId"
+                                               class="btn btn-sm btn-success">
+                                                <i class="bi bi-people"></i> Enrolments
+                                            </a>
+                                            <!-- END OF ENROLMENTS LINK -->
+
                                         </div>
                                     </td>
 
