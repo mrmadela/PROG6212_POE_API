@@ -12,25 +12,25 @@ namespace RaceDay.Mvc.Models.ViewModels
         public int EventId { get; set; }
 
         [Required(ErrorMessage = "Category name is required.")]
-        [StringLength(150, ErrorMessage = "Category name cannot exceed 150 characters.")]
+        [StringLength(150)]
         public string CategoryName { get; set; } = string.Empty;
 
-        [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
+        [StringLength(500)]
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "Category type is required.")]
         [RegularExpression("^(Age|Distance)$",
-            ErrorMessage = "Category type must be Age or Distance.")]
+            ErrorMessage = "Select Age or Distance.")]
         public string CategoryType { get; set; } = string.Empty;
 
-        [StringLength(20, ErrorMessage = "Age group cannot exceed 20 characters.")]
+        [StringLength(20)]
         public string? AgeGroup { get; set; }
 
         [Range(typeof(decimal), "0.01", "999.99",
             ErrorMessage = "Distance must be between 0.01 and 999.99 km.")]
         public decimal? DistanceKm { get; set; }
 
-        // start of category type validation
+        // start of category validation
         public IEnumerable<ValidationResult> Validate(
             ValidationContext validationContext)
         {
@@ -67,7 +67,7 @@ namespace RaceDay.Mvc.Models.ViewModels
                 }
             }
         }
-        // end of category type validation
+        // end of category validation
     }
     // end of CategoryViewModel
 

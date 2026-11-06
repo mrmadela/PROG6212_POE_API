@@ -289,6 +289,280 @@ namespace RaceDay.Mvc.Controllers
 
 
 
+
+        // GET: Organiser/Categories/5
+        [HttpGet]
+        public async Task<IActionResult> Categories(int eventId)
+        {
+            // Make the event ID available to the view immediately.
+            ViewBag.EventId = eventId;
+
+            try
+            {
+                var categories = await _apiService.GetAsync<List<CategoryDto>>(
+                    $"api/events/{eventId}/categories");
+
+                return View(categories ?? new List<CategoryDto>());
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] = "Unable to retrieve event categories.";
+
+                return View(new List<CategoryDto>());
+            }
+        }
+
+        // GET: Organiser/CreateCategory/5
+        [HttpGet]
+        public IActionResult CreateCategory(int eventId)
+        {
+            var model = new CategoryViewModel
+            {
+                EventId = eventId
+            };
+
+            return View(model);
+        }
+
+        // POST: Organiser/CreateCategory
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCategory(
+            CategoryViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                var request = new CategoryDto
+                {
+                    CategoryName = model.CategoryName.Trim(),
+                    Description = model.Description,
+                    CategoryType = model.CategoryType,
+                    AgeGroup = model.CategoryType == "Age"
+                        ? model.AgeGroup?.Trim()
+                        : null,
+                    DistanceKm = model.CategoryType == "Distance"
+                        ? model.DistanceKm
+                        : null,
+                    EventId = model.EventId
+                };
+
+                var parameters = new Dictionary<string, string?>
+                {
+                    ["categoryName"] = request.CategoryName,
+                    ["description"] = request.Description,
+                    ["categoryType"] = request.CategoryType,
+                    ["ageGroup"] = request.AgeGroup,
+                    ["distanceKm"] = request.DistanceKm?.ToString(
+                        CultureInfo.InvariantCulture)
+                };
+
+                string endpoint = QueryHelpers.AddQueryString(
+                    $"api/events/{model.EventId}/categories",
+                    parameters);
+
+                var result = await _apiService.PostAsync<CategoryDto, CategoryDto>(
+                    endpoint,
+                    request);
+
+                if (result == null)
+                {
+                    TempData["Error"] = "Category creation failed.";
+                    return View(model);
+                }
+
+                TempData["Success"] = "Category created successfully.";
+
+                return RedirectToAction(
+                    nameof(Categories),
+                    new { eventId = model.EventId });
+            }
+            catch (HttpRequestException)
+            {
+                TempData["Error"] =
+                    "The API could not create the category. Check the category details.";
+
+                return View(model);
+            }
+        }
+
+        // GET: Organiser/EditCategory/5
+        [HttpGet]
+        public async Task<IActionResult> EditCategory(
+            int id,
+            int eventId)
+        {
+            try
+            {
+                var categories = await _apiService.GetAsync<List<CategoryDto>>(
+                    $"api/events/{eventId}/categories");
+
+                var category = categories?.FirstOrDefault(
+                    c => c.CategoryId == id);
+
+                if (category == null)
+                {
+                    TempData["Error"] = "Category not found.";
+
+                    return RedirectToAction(
+                        nameof(Categories),
+                        new { eventId });
+                }
+
+                var model = new CategoryViewModel
+                {
+                    CategoryId = category.CategoryId,
+                    EventId = category.EventId,
+                    CategoryName = category.CategoryName,
+                    Description = category.Description,
+                    CategoryType = category.CategoryType,
+                    AgeGroup = category.AgeGroup,
+                    DistanceKm = category.DistanceKm
+                };
+
+                return View(model);
+            }
+            catch (HttpRequestException)
+            {
+                TempData["Error"] = "Unable to retrieve the category.";
+
+                return RedirectToAction(
+                    nameof(Categories),
+                    new { eventId });
+            }
+        }
+
+        // POST: Organiser/EditCategory
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCategory(
+            CategoryViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                var request = new CategoryDto
+                {
+                    CategoryId = model.CategoryId,
+                    EventId = model.EventId,
+                    CategoryName = model.CategoryName.Trim(),
+                    Description = model.Description,
+                    CategoryType = model.CategoryType,
+                    AgeGroup = model.CategoryType == "Age"
+                        ? model.AgeGroup?.Trim()
+                        : null,
+                    DistanceKm = model.CategoryType == "Distance"
+                        ? model.DistanceKm
+                        : null
+                };
+
+                var parameters = new Dictionary<string, string?>
+                {
+                    ["categoryName"] = request.CategoryName,
+                    ["description"] = request.Description,
+                    ["categoryType"] = request.CategoryType,
+                    ["ageGroup"] = request.AgeGroup,
+                    ["distanceKm"] = request.DistanceKm?.ToString(
+                        CultureInfo.InvariantCulture)
+                };
+
+                string endpoint = QueryHelpers.AddQueryString(
+                    $"api/categories/{model.CategoryId}",
+                    parameters);
+
+                await _apiService.PutAsync<CategoryDto, JsonElement>(
+                    endpoint,
+                    request);
+
+                TempData["Success"] = "Category updated successfully.";
+
+                return RedirectToAction(
+                    nameof(Categories),
+                    new { eventId = model.EventId });
+            }
+            catch (HttpRequestException)
+            {
+                TempData["Error"] =
+                    "Unable to update the category. Check the details.";
+
+                return View(model);
+            }
+        }
+
+        // GET: Organiser/DeleteCategory/5
+        [HttpGet]
+        public async Task<IActionResult> DeleteCategory(
+            int id,
+            int eventId)
+        {
+            try
+            {
+                var categories = await _apiService.GetAsync<List<CategoryDto>>(
+                    $"api/events/{eventId}/categories");
+
+                var category = categories?.FirstOrDefault(
+                    c => c.CategoryId == id);
+
+                if (category == null)
+                {
+                    TempData["Error"] = "Category not found.";
+
+                    return RedirectToAction(
+                        nameof(Categories),
+                        new { eventId });
+                }
+
+                return View(category);
+            }
+            catch (HttpRequestException)
+            {
+                TempData["Error"] = "Unable to retrieve the category.";
+
+                return RedirectToAction(
+                    nameof(Categories),
+                    new { eventId });
+            }
+        }
+
+        // POST: Organiser/DeleteCategoryConfirmed
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCategoryConfirmed(
+            int id,
+            int eventId)
+        {
+            try
+            {
+                bool deleted = await _apiService.DeleteAsync(
+                    $"api/categories/{id}");
+
+                if (deleted)
+                {
+                    TempData["Success"] = "Category deleted successfully.";
+                }
+                else
+                {
+                    TempData["Error"] =
+                        "Category could not be deleted. Participants may be enrolled.";
+                }
+            }
+            catch (HttpRequestException)
+            {
+                TempData["Error"] =
+                    "Unable to delete the category. It may have existing enrolments.";
+            }
+
+            return RedirectToAction(
+                nameof(Categories),
+                new { eventId });
+        }
+
+
+
     }// end of class
 
 }// end of namespace
