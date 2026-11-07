@@ -1,0 +1,94 @@
+﻿@using RaceDay.Contracts
+@model List<ResultDto>
+
+@{
+    ViewData["Title"] = "Event Results";
+
+    int eventId = ViewBag.EventId is int id ? id : 0;
+}
+
+<!-- START OF RESULTS PAGE -->
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2>Event Results</h2>
+
+        <p class="text-muted">
+            Results for Event #@eventId
+        </p>
+    </div>
+
+    <!-- START OF SUCCESS MESSAGE -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    <!-- END OF SUCCESS MESSAGE -->
+    <!-- START OF ERROR MESSAGE -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    <!-- END OF ERROR MESSAGE -->
+    <!-- START OF RESULTS TABLE -->
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No results have been recorded for this event yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Result ID</th>
+                        <th>Enrolment ID</th>
+                        <th>Duration</th>
+                        <th>Average Speed (km/h)</th>
+                        <th>Position</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var result in Model)
+                    {
+                        <tr>
+                            <td>@result.ResultId</td>
+                            <td>@result.EnrolId</td>
+
+                            <td>
+                                @(result.Duration?.ToString(@"hh\:mm\:ss") ?? "N/A")
+                            </td>
+
+                            <td>
+                                @(result.AverageSpeed?.ToString("0.00") ?? "N/A")
+                            </td>
+
+                            <td>
+                                @(result.Position?.ToString() ?? "N/A")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+    <!-- END OF RESULTS TABLE -->
+
+    <a asp-action="Events"
+       class="btn btn-outline-secondary">
+        Back to Events
+    </a>
+
+</div>
+<!-- END OF RESULTS PAGE -->

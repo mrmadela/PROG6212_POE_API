@@ -11,6 +11,14 @@
         </div>
 
         <div class="card-body">
+            <!-- START OF ERROR MESSAGE -->
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+            <!-- END OF ERROR MESSAGE -->
             <form asp-action="CreateCategory" method="post">
                 @Html.AntiForgeryToken()
 

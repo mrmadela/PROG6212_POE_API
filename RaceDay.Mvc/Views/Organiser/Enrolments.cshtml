@@ -47,6 +47,7 @@
                         <th>Participant ID</th>
                         <th>Category ID</th>
                         <th>Enrolment Date</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -60,6 +61,17 @@
                             <td>
                                 @enrolment.EnrolDate.ToString("dd MMM yyyy")
                             </td>
+                            <!-- START OF RECORD RESULT ACTION -->
+                            <td>
+                                <a asp-controller="Organiser"
+                                   asp-action="CreateResult"
+                                   asp-route-eventId="@eventId"
+                                   asp-route-enrolId="@enrolment.EnrolId"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="bi bi-trophy"></i> Record Result
+                                </a>
+                            </td>
+                            <!-- END OF RECORD RESULT ACTION -->
                         </tr>
                     }
                 </tbody>

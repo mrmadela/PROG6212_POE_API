@@ -590,6 +590,108 @@ namespace RaceDay.Mvc.Controllers
 
 
 
+        // START OF EVENT RESULTS ACTION
+        [HttpGet]
+        public async Task<IActionResult> Results(int eventId)
+        {
+            ViewBag.EventId = eventId;
+
+            try
+            {
+                var results = await _apiService.GetAsync<List<ResultDto>>(
+                    $"api/results/event/{eventId}");
+
+                return View(results ?? new List<ResultDto>());
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to retrieve results for this event.";
+
+                return View(new List<ResultDto>());
+            }
+        }
+        // END OF EVENT RESULTS ACTION
+
+        // START OF CREATE RESULT GET
+        [HttpGet]
+        public IActionResult CreateResult(int eventId, int enrolId)
+        {
+            var model = new ResultViewModel
+            {
+                EventId = eventId,
+                EnrolId = enrolId
+            };
+
+            return View(model);
+        }
+        // END OF CREATE RESULT GET
+
+        // START OF CREATE RESULT POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateResult(
+            ResultViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                var request = new ResultDto
+                {
+                    EnrolId = model.EnrolId,
+                    Duration = model.Duration,
+                    AverageSpeed = model.AverageSpeed,
+                    Position = model.Position
+                };
+
+                var parameters = new Dictionary<string, string?>
+                {
+                    ["enrolId"] = model.EnrolId.ToString(),
+
+                    ["duration"] = model.Duration?.ToString(
+                        "c", CultureInfo.InvariantCulture),
+
+                    ["averageSpeed"] = model.AverageSpeed?.ToString(
+                        CultureInfo.InvariantCulture),
+
+                    ["position"] = model.Position?.ToString()
+                };
+
+                string endpoint = QueryHelpers.AddQueryString(
+                    "api/results",
+                    parameters);
+
+                var result = await _apiService.PostAsync<ResultDto, ResultDto>(
+                    endpoint,
+                    request);
+
+                if (result == null)
+                {
+                    TempData["ErrorMessage"] =
+                        "Result creation failed.";
+
+                    return View(model);
+                }
+
+                TempData["SuccessMessage"] =
+                    "Result recorded successfully.";
+
+                return RedirectToAction(
+                    nameof(Results),
+                    new { eventId = model.EventId });
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to record the result. Check the enrolment and result details.";
+
+                return View(model);
+            }
+        }
+        // END OF CREATE RESULT POST
+
     }// end of class
 
 }// end of namespace
