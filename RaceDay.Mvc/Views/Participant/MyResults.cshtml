@@ -1,0 +1,77 @@
+﻿@model List<RaceDay.Mvc.Models.ViewModels.ParticipantResultViewModel>
+
+@{
+    ViewData["Title"] = "My Results";
+}
+
+<!-- START OF MY RESULTS PAGE -->
+<section class="container py-5">
+
+    <div class="mb-4">
+        <h1 class="fw-bold">My Results</h1>
+
+        <p class="text-muted">
+            View your event performance and finishing results.
+        </p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No results are available yet.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="card shadow-sm border-0 h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="fw-bold">
+                                @item.Event.EventName
+                            </h5>
+
+                            <p class="text-muted">
+                                @item.Event.Date.ToString("dd MMM yyyy")
+                            </p>
+
+                            <hr />
+
+                            <p>
+                                <strong>Category:</strong>
+                                @item.Category.CategoryName
+                            </p>
+
+                            <p>
+                                <strong>Position:</strong>
+                                @(item.Result.Position?.ToString() ?? "Not recorded")
+                            </p>
+
+                            <p>
+                                <strong>Finish Time:</strong>
+                                @(item.Result.Duration?.ToString(@"hh\:mm\:ss") ?? "Not recorded")
+                            </p>
+
+                            <p>
+                                <strong>Average Speed:</strong>
+                                @(item.Result.AverageSpeed?.ToString("0.00") ?? "Not recorded")
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</section>
+<!-- END OF MY RESULTS PAGE -->

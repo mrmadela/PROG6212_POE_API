@@ -194,6 +194,159 @@ namespace RaceDay.Mvc.Controllers
         // END OF MY EVENTS ACTION
 
 
+        // START OF MY RESULTS ACTION
+        public async Task<IActionResult> MyResults()
+        {
+            var results = await _apiService.GetAsync<List<ResultDto>>(
+                "api/results/mine"
+            );
+
+            var enrolments = await _apiService.GetAsync<List<EnrolmentDto>>(
+                "api/enrolments/mine"
+            );
+
+            var events = await _apiService.GetAsync<List<EventDto>>(
+                "api/events"
+            );
+
+            var viewModels = new List<ParticipantResultViewModel>();
+
+            if (results == null || enrolments == null || events == null)
+            {
+                return View(viewModels);
+            }
+
+            var categoryCache = new Dictionary<int, List<CategoryDto>>();
+
+            foreach (var result in results)
+            {
+                var enrolment = enrolments.FirstOrDefault(
+                    e => e.EnrolId == result.EnrolId
+                );
+
+                if (enrolment == null)
+                {
+                    continue;
+                }
+
+                foreach (var eventItem in events)
+                {
+                    if (!categoryCache.ContainsKey(eventItem.EventId))
+                    {
+                        var categories = await _apiService.GetAsync<List<CategoryDto>>(
+                            $"api/events/{eventItem.EventId}/categories"
+                        );
+
+                        categoryCache[eventItem.EventId] =
+                            categories ?? new List<CategoryDto>();
+                    }
+
+                    var category = categoryCache[eventItem.EventId]
+                        .FirstOrDefault(c => c.CategoryId == enrolment.CategoryId);
+
+                    if (category != null)
+                    {
+                        viewModels.Add(new ParticipantResultViewModel
+                        {
+                            Result = result,
+                            Event = eventItem,
+                            Category = category
+                        });
+
+                        break;
+                    }
+                }
+            }
+
+            return View(viewModels);
+        }
+        // END OF MY RESULTS ACTION
+
+
+
+        // START OF MY PROFILE ACTION
+        public async Task<IActionResult> MyProfile()
+        {
+            var profile = await _apiService.GetAsync<ProfileDto>(
+                "api/users/profile"
+            );
+
+            if (profile == null)
+            {
+                TempData["ErrorMessage"] = "Unable to load your profile.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(profile);
+        }
+        // END OF MY PROFILE ACTION
+
+
+        // START OF EDIT PROFILE GET ACTION
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var profile = await _apiService.GetAsync<ProfileDto>(
+                "api/users/profile"
+            );
+
+            if (profile == null)
+            {
+                TempData["ErrorMessage"] = "Unable to load your profile.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var request = new UpdateProfileRequest
+            {
+                FullName = profile.FullName,
+                Address = profile.Address
+            };
+
+            return View(request);
+        }
+        // END OF EDIT PROFILE GET ACTION
+
+
+        // START OF EDIT PROFILE POST ACTION
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(UpdateProfileRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(request);
+            }
+
+            try
+            {
+                var response = await _apiService.PutAsync<UpdateProfileRequest, System.Text.Json.JsonElement>(
+                    "api/users/profile",
+                    request
+                );
+
+                if (response.ValueKind == System.Text.Json.JsonValueKind.Undefined)
+                {
+                    TempData["ErrorMessage"] = "Unable to confirm that your profile was updated.";
+                    return View(request);
+                }
+
+                TempData["SuccessMessage"] = "Your profile has been updated successfully.";
+
+                return RedirectToAction(nameof(MyProfile));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "An error occurred while updating your profile. Please try again."
+                );
+
+                return View(request);
+            }
+        }
+        // END OF EDIT PROFILE POST ACTION
+
+
 
     }// END OF CLASS
 

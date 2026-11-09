@@ -1,0 +1,72 @@
+﻿@model RaceDay.Contracts.ProfileDto
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<!-- START OF MY PROFILE PAGE -->
+<section class="container py-5">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">My Profile</h1>
+            <p class="text-muted">
+                View your personal account information.
+            </p>
+        </div>
+
+        <a asp-controller="Participant"
+           asp-action="EditProfile"
+           class="btn btn-primary">
+            <i class="bi bi-pencil me-2"></i>
+            Edit Profile
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <div class="mb-3">
+                <label class="text-muted">Full Name</label>
+                <p class="fw-semibold">@Model.FullName</p>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-muted">Email Address</label>
+                <p class="fw-semibold">@Model.Email</p>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-muted">Role</label>
+                <p class="fw-semibold">@Model.Role</p>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-muted">ID Number</label>
+                <p class="fw-semibold">@(Model.IdNum ?? "Not provided")</p>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-muted">Address</label>
+                <p class="fw-semibold">@(Model.Address ?? "Not provided")</p>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+<!-- END OF MY PROFILE PAGE -->
