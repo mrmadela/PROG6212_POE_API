@@ -1,0 +1,161 @@
+﻿@model RaceDay.Mvc.Models.ViewModels.EventDetailsViewModel
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<!-- START OF EVENT DETAILS PAGE -->
+<section class="container py-5">
+
+    <!-- START OF BACK BUTTON -->
+    <div class="mb-4">
+        <a asp-controller="Participant"
+           asp-action="Index"
+           class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left me-2"></i>
+            Back to Events
+        </a>
+    </div>
+    <!-- END OF BACK BUTTON -->
+    <!-- START OF EVENT INFORMATION -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body p-4">
+
+            <span class="badge bg-primary mb-3">
+                @Model.Event.EventType
+            </span>
+
+            <h1 class="fw-bold">
+                @Model.Event.EventName
+            </h1>
+
+            <p class="text-muted">
+                @Model.Event.EventDescription
+            </p>
+
+            <hr />
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <h6 class="text-muted">
+                        <i class="bi bi-calendar3 me-2"></i>
+                        Event Date
+                    </h6>
+
+                    <p class="fw-semibold">
+                        @Model.Event.Date.ToString("dd MMMM yyyy")
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="text-muted">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        Location
+                    </h6>
+
+                    <p class="fw-semibold">
+                        @Model.Event.Location
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="text-muted">
+                        <i class="bi bi-signpost-2 me-2"></i>
+                        Distance
+                    </h6>
+
+                    <p class="fw-semibold">
+                        @Model.Event.DistanceKm km
+                    </p>
+                </div>
+
+
+
+
+                <div class="col-md-6">
+                    <h6 class="text-muted">
+                        <i class="bi bi-trophy me-2"></i>
+                        Event Type
+                    </h6>
+
+                    <p class="fw-semibold">
+                        @Model.Event.EventType
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- END OF EVENT INFORMATION -->
+    <!-- START OF EVENT CATEGORIES -->
+    <div class="mb-4">
+
+        <h3 class="fw-bold mb-3">
+            Event Categories
+        </h3>
+
+        @if (Model.Categories == null || !Model.Categories.Any())
+        {
+            <div class="alert alert-info">
+                No categories have been created for this event yet.
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+
+                @foreach (var category in Model.Categories)
+                {
+                    <div class="col-md-6 col-lg-4">
+
+                        <div class="card h-100 shadow-sm border-0">
+
+                            <div class="card-body">
+
+                                <span class="badge bg-secondary mb-2">
+                                    @category.CategoryType
+                                </span>
+
+                                <h5 class="fw-bold">
+                                    @category.CategoryName
+                                </h5>
+
+                                <p class="text-muted">
+                                    @category.Description
+                                </p>
+
+                                @if (category.CategoryType == "Age")
+                                {
+                                    <p>
+                                        <strong>Age Group:</strong>
+                                        @category.AgeGroup
+                                    </p>
+                                }
+
+                                @if (category.CategoryType == "Distance")
+                                {
+                                    <p>
+                                        <strong>Distance:</strong>
+                                        @category.DistanceKm km
+                                    </p>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+
+    </div>
+    <!-- END OF EVENT CATEGORIES -->
+
+</section>
+<!-- END OF EVENT DETAILS PAGE -->
