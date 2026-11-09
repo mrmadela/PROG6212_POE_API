@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using RaceDay.Mvc.Services;
 using RaceDay.Contracts;
 using RaceDay.Mvc.Models.ViewModels;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace RaceDay.Mvc.Controllers
 {// START OF NAMESPACE
@@ -101,6 +103,95 @@ namespace RaceDay.Mvc.Controllers
             return View(viewModel);
         }
         // END OF EVENT DETAILS ACTION
+
+
+        // START OF ENROL IN EVENT ACTION
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Enrol(int categoryId, int eventId)
+        {
+            try
+            {
+                var enrolment = await _apiService.PostAsync<object, EnrolmentDto>(
+                    $"api/enrolments?categoryId={categoryId}",
+                    new { }
+                );
+
+                if (enrolment != null)
+                {
+                    TempData["SuccessMessage"] = "You have successfully enrolled in this event.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Unable to complete your enrolment. Please try again.";
+                }
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] =
+                    "Your enrolment could not be completed. You may already be enrolled in this category.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id = eventId });
+        }
+        // END OF ENROL IN EVENT ACTION
+
+
+        // START OF MY EVENTS ACTION
+        public async Task<IActionResult> MyEvents()
+        {
+            var enrolments = await _apiService.GetAsync<List<EnrolmentDto>>(
+                "api/enrolments/mine"
+            );
+
+            var events = await _apiService.GetAsync<List<EventDto>>(
+                "api/events"
+            );
+
+            var viewModels = new List<ParticipantEnrolmentViewModel>();
+
+            if (enrolments == null || events == null)
+            {
+                return View(viewModels);
+            }
+
+            var categoryCache = new Dictionary<int, List<CategoryDto>>();
+
+            foreach (var enrolment in enrolments)
+            {
+                foreach (var eventItem in events)
+                {
+                    // Load each event's categories once.
+                    if (!categoryCache.ContainsKey(eventItem.EventId))
+                    {
+                        var categories = await _apiService.GetAsync<List<CategoryDto>>(
+                            $"api/events/{eventItem.EventId}/categories"
+                        );
+
+                        categoryCache[eventItem.EventId] =
+                            categories ?? new List<CategoryDto>();
+                    }
+
+                    var category = categoryCache[eventItem.EventId]
+                        .FirstOrDefault(c => c.CategoryId == enrolment.CategoryId);
+
+                    if (category != null)
+                    {
+                        viewModels.Add(new ParticipantEnrolmentViewModel
+                        {
+                            Enrolment = enrolment,
+                            Event = eventItem,
+                            Category = category
+                        });
+
+                        break;
+                    }
+                }
+            }
+
+            return View(viewModels);
+        }
+        // END OF MY EVENTS ACTION
 
 
 
