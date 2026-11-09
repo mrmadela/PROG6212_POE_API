@@ -1,0 +1,51 @@
+
+# START OF WORKFLOW
+name: RaceDay CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Restore, Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # START OF CHECKOUT
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # END OF CHECKOUT
+
+      # START OF DOTNET SETUP
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      # END OF DOTNET SETUP
+
+      # START OF RESTORE
+      - name: Restore solution
+        run: dotnet restore RaceDay.sln
+      # END OF RESTORE
+
+      # START OF BUILD
+      - name: Build solution
+        run: dotnet build RaceDay.sln --configuration Release --no-restore
+      # END OF BUILD
+
+      # START OF TESTS
+      - name: Run automated tests
+        run: dotnet test RaceDay.sln --configuration Release --no-build --verbosity normal
+      # END OF TESTS
+# END OF WORKFLOW
